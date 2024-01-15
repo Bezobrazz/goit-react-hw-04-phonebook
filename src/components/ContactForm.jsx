@@ -1,57 +1,57 @@
-import React, { Component } from 'react';
-
+import React, { useState } from 'react';
 import { StyledForm, StyledLabel, StyledLabelWrapper } from './styled';
 import { Button, TextField } from '@mui/material';
 
-export default class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
+const ContactForm = ({ onFormSubmit }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const onNameChange = e => {
+    setName(e.target.value);
   };
 
-  onInputChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({ [name]: value });
+  const onNumberChange = e => {
+    setNumber(e.target.value);
   };
 
-  onFormSubmit = e => {
+  const onFormSubmitHandler = e => {
     e.preventDefault();
-    const { name, number } = this.state;
-    this.props.onFormSubmit({ name, number });
-    this.setState({ name: '', number: '' });
+    onFormSubmit({ name, number });
+    setName('');
+    setNumber('');
   };
 
-  render() {
-    return (
-      <div>
-        <StyledForm onSubmit={this.onFormSubmit}>
-          <StyledLabelWrapper>
-            <StyledLabel>
-              <TextField
-                type="text"
-                placeholder="Enter the name"
-                name="name"
-                required
-                value={this.state.name}
-                onChange={this.onInputChange}
-              />
-            </StyledLabel>
-            <StyledLabel>
-              <TextField
-                type="tel"
-                placeholder="Enter the phone"
-                name="number"
-                required
-                value={this.state.number}
-                onChange={this.onInputChange}
-              />
-            </StyledLabel>
-          </StyledLabelWrapper>
-          <Button type="submit" variant="contained" color="primary">
-            Add contact
-          </Button>
-        </StyledForm>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <StyledForm onSubmit={onFormSubmitHandler}>
+        <StyledLabelWrapper>
+          <StyledLabel>
+            <TextField
+              type="text"
+              placeholder="Enter the name"
+              name="name"
+              required
+              value={name}
+              onChange={onNameChange}
+            />
+          </StyledLabel>
+          <StyledLabel>
+            <TextField
+              type="tel"
+              placeholder="Enter the phone"
+              name="number"
+              required
+              value={number}
+              onChange={onNumberChange}
+            />
+          </StyledLabel>
+        </StyledLabelWrapper>
+        <Button type="submit" variant="contained" color="primary">
+          Add contact
+        </Button>
+      </StyledForm>
+    </div>
+  );
+};
+
+export default ContactForm;

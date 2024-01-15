@@ -1,39 +1,32 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { StyledContainer } from './styled';
 import { Typography } from '@mui/material';
-
 import ContactForm from './ContactForm';
 import Filter from './Filter';
 import ContactList from './ContactList';
 import { Notify } from 'notiflix';
 import { nanoid } from 'nanoid';
 
-export default class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState(() => {
+    const savedContacts = JSON.parse(localStorage.getItem('contacts'));
+    return (
+      savedContacts || [
+        { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+        { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+        { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+        { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+      ]
+    );
+  });
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const savedContacts = localStorage.getItem('contacts');
-    if (savedContacts) {
-      this.setState({ contacts: JSON.parse(savedContacts) });
-    }
-  }
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  componentDidUpdate(prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  onFormSubmit = ({ name, number }) => {
-    const isNameAlreadyExist = this.state.contacts.some(
+  const onFormSubmit = ({ name, number }) => {
+    const isNameAlreadyExist = contacts.some(
       contact => contact.name.toLowerCase() === name.toLowerCase()
     );
 
@@ -43,55 +36,51 @@ export default class App extends Component {
       );
     } else {
       const uniqueId = nanoid();
-      this.setState(prevState => ({
-        contacts: [{ id: uniqueId, name, number }, ...prevState.contacts],
-      }));
+      setContacts(prevContacts => [
+        { id: uniqueId, name, number },
+        ...prevContacts,
+      ]);
     }
   };
 
-  onInputChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({ [name]: value });
+  const onInputChange = e => {
+    const { value } = e.currentTarget;
+    setFilter(value);
   };
 
-  onContactSubmit = newContact => {
-    this.setState(prevState => ({
-      contacts: [newContact, ...prevState.contacts],
-    }));
+  const onContactSubmit = newContact => {
+    setContacts(prevContacts => [newContact, ...prevContacts]);
   };
 
-  onDeleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
+  const onDeleteContact = contactId => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== contactId)
+    );
     Notify.success('Contact deleted successfully.');
   };
 
-  render() {
-    const { filter, contacts } = this.state;
-    const filteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-    return (
-      <StyledContainer maxWidth="md">
-        <Typography variant="h1" align="center" fontSize="60px" gutterBottom>
-          Phonebook
-        </Typography>
-        <ContactForm
-          contacts={this.state.contacts}
-          onContactSubmit={this.onContactSubmit}
-          onFormSubmit={this.onFormSubmit}
-        />
-        <Typography variant="h2" align="center" fontSize="40px" gutterBottom>
-          Contacts
-        </Typography>
-        <Filter value={filter} onChange={this.onInputChange} />
-        <ContactList
-          onDeleteContact={this.onDeleteContact}
-          contacts={filteredContacts}
-        />
-      </StyledContainer>
-    );
-  }
-}
+  return (
+    <StyledContainer maxWidth="md">
+      <Typography variant="h1" align="center" fontSize="60px" gutterBottom>
+        Phonebook
+      </Typography>
+      <ContactForm
+        contacts={contacts}
+        onContactSubmit={onContactSubmit}
+        onFormSubmit={onFormSubmit}
+      />
+      <Typography variant="h2" align="center" fontSize="40px" gutterBottom>
+        Contacts
+      </Typography>
+      <Filter value={filter} onChange={onInputChange} />
+      <ContactList
+        onDeleteContact={onDeleteContact}
+        contacts={filteredContacts}
+      />
+    </StyledContainer>
+  );
+};
