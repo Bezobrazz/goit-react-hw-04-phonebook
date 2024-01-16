@@ -48,10 +48,6 @@ export const App = () => {
     setFilter(value);
   };
 
-  const onContactSubmit = newContact => {
-    setContacts(prevContacts => [newContact, ...prevContacts]);
-  };
-
   const onDeleteContact = contactId => {
     setContacts(prevContacts =>
       prevContacts.filter(contact => contact.id !== contactId)
@@ -68,11 +64,7 @@ export const App = () => {
       <Typography variant="h1" align="center" fontSize="60px" gutterBottom>
         Phonebook
       </Typography>
-      <ContactForm
-        contacts={contacts}
-        onContactSubmit={onContactSubmit}
-        onFormSubmit={onFormSubmit}
-      />
+      <ContactForm contacts={contacts} onFormSubmit={onFormSubmit} />
       <Typography variant="h2" align="center" fontSize="40px" gutterBottom>
         Contacts
       </Typography>
